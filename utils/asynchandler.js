@@ -10,8 +10,9 @@
 //     }
 // }
 
-const asynchandler=(requestHandler)=>async(req,res,next)=>{{
-    Promise.resolve().catch((err)=>next(err))
+const asynchandler=(requestHandler)=>{
+    return async(req,res,next)=>{
+    Promise.resolve(requestHandler(req,res,next)).catch((err)=>next(err))
 }
 }
 
