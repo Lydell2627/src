@@ -4,15 +4,21 @@ import {userDetails} from "../models/user.models.js";
 import {uploadOnCLoudinary} from '../utils/cloudinary.js';
 import { Apiresponse } from "../utils/Apiresponse.js";
 const registerUser = asynchandler(async (req, res) => {
-  const { UserName, EmailId, Password, phoneNumber } = req.body
+  const { username, EmailId, password, phoneNumber } = req.body
+  // console.log("username",username);
+  // console.log("EmailId",EmailId);
+  // console.log("Password",password);
+  // console.log("phoneNumber",phoneNumber);
+  // console.log("username",username);
 
-  console.log("email:",EmailId);
-  if ([UserName, EmailId, Password, phoneNumber].some((field)=>
+
+
+  if ([username, EmailId, password, phoneNumber].some((field)=>
   field?.trim()=="")) {
     throw new Apierror('Bad Request', 'Please fill all fields',400)
     }
-    const existeduser=userDetails.findOne({
-      $or:[{UserName},{EmailId}]
+    const existeduser=await userDetails.findOne({
+      $or:[{username},{EmailId}]
     })
     if (existeduser) {
       throw new Apierror(409,"the username and email is already present");
@@ -29,18 +35,19 @@ const registerUser = asynchandler(async (req, res) => {
       throw new Apierror(400,"avatar file is required")
     }
     const user=userDetails.create({
-      UserName:UserName.tolower,
-      Password,
+      username:username.toLowerCase(),
+      EmailId,
+      password,
       phoneNumber,
       avatar: avatar.url,
-      Photo : Photo?Photo.url:"" ,
-      EmailId,
+      Photo: Photo?.url||"" ,
+      
     })
 
     const createdUser=await userDetails.findById(user._id).select(
       "-Password -refreshToken"
     )
-    if (!createdUser) {
+    if (createdUser) {
       throw new Apierror(404,"something went wrong, user not found")
       
     }

@@ -1,22 +1,22 @@
-import {v2 as cloudinary} from "cloudinary";
-import multer from "multer";
-import fs from 'fs';
-import { response } from "express";
+import {v2 as cloudinary} from 'cloudinary';
           
 cloudinary.config({ 
-  cloud_name: process.env.CLOUD_NAME, 
-  api_key: process.env.CLOUDINARY_API_KEY, 
-  api_secret:process.env.API_SECRET 
+  cloud_name: 'nitelmw', 
+  api_key: '118391425587624', 
+  api_secret: 'cky5T6-FMqOCy1UPsftF6uim2cc' 
 });
+import fs from 'fs';
+
 const uploadOnCLoudinary=async (localFilePath)=>{
     try {
         if (!localFilePath) 
             return null
             console.log("the file is not present")
-            cloudinary.uploader.upload(localFilePath,{
+            const response=await cloudinary.uploader.upload(localFilePath,{
                 resource_type:"auto"
             })
             console.log("file is uploaded sucessfully",response.url);
+            fs.unlinkSync(localFilePath)
             return response;
         
     } catch (error) {
@@ -27,7 +27,8 @@ const uploadOnCLoudinary=async (localFilePath)=>{
 
 
 
-cloudinary.uploader.upload("https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg",
-  { public_id: "olympic_flag" }, 
-  function(error, result) {console.log(result); });
+// cloudinary.uploader.upload("https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg",
+//   { public_id: "olympic_flag" }, 
+//   function(error, result) {console.log(result); });
   export {uploadOnCLoudinary}
+  
