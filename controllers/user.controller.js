@@ -1,23 +1,18 @@
 import { asynchandler } from "../utils/asynchandler.js";
 import { Apierror } from "../utils/Apierror.js";
-import {userDetails} from "../models/user.models.js";
+import {User} from "../models/user.models.js";
 import {uploadOnCLoudinary} from '../utils/cloudinary.js';
 import { Apiresponse } from "../utils/Apiresponse.js";
 const registerUser = asynchandler(async (req, res) => {
   const { username, EmailId, password, phoneNumber } = req.body
-  // console.log("username",username);
-  // console.log("EmailId",EmailId);
-  // console.log("Password",password);
-  // console.log("phoneNumber",phoneNumber);
-  // console.log("username",username);
 
 
 
   if ([username, EmailId, password, phoneNumber].some((field)=>
-  field?.trim()=="")) {
+  field?.trim()==="")) {
     throw new Apierror('Bad Request', 'Please fill all fields',400)
     }
-    const existeduser=await userDetails.findOne({
+    const existeduser=await User.findOne({
       $or:[{username},{EmailId}]
     })
     if (existeduser) {
@@ -25,7 +20,13 @@ const registerUser = asynchandler(async (req, res) => {
       
     }
     const avatarLocalPath=req.files?.avatar[0]?.path;
-    const PhotoLocalPath=req.files?.Photo[0]?.path;
+    //const PhotoLocalPath=req.files?.Photo[0]?.path;
+    
+    let PhotoLocalPath;
+    if (req.files && Array.isArray(req.files.Photo) && req.files.Photo.length > 0) {
+        PhotoLocalPath = req.files.Photo[0].path
+    }
+    
     if (!avatarLocalPath) {
       throw new Apierror(400,"avatar file is required")
     }
@@ -34,22 +35,30 @@ const registerUser = asynchandler(async (req, res) => {
     if (!avatar) {
       throw new Apierror(400,"avatar file is required")
     }
-    const user=userDetails.create({
-      username:username.toLowerCase(),
+    console.log("Creating user with the following object:", {
+      username: username.toLowerCase(),
       EmailId,
       password,
       phoneNumber,
       avatar: avatar.url,
-      Photo: Photo?.url||"" ,
-      
-    })
+      Photo: Photo?.url,
+    });
+    
+    const user = await User.create({
+      username: username.toLowerCase(),
+      EmailId,
+      password,
+      phoneNumber,
+      avatar: avatar.url,
+      Photo: Photo?.url,
+    });
 
-    const createdUser=await userDetails.findById(user._id).select(
+
+    const createdUser=await User.findById(user._id).select(
       "-Password -refreshToken"
     )
-    if (createdUser) {
-      throw new Apierror(404,"something went wrong, user not found")
-      
+    if (!createdUser) {
+      throw new Apierror(404, "something went wrong, user not found");
     }
     return res.status(201).json(
       new Apiresponse(200,createdUser,"The user is sucessfully registered")
@@ -57,6 +66,7 @@ const registerUser = asynchandler(async (req, res) => {
 
 
   })
+
 
 export { registerUser,
  };
