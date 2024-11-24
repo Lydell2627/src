@@ -3,7 +3,7 @@ import { Apierror } from "../utils/Apierror.js";
 import {User} from "../models/user.models.js";
 import {uploadOnCLoudinary} from '../utils/cloudinary.js';
 import { Apiresponse } from "../utils/Apiresponse.js";
-import {jwt} from 'jsonwebtoken';
+// import {jwt} from 'jsonwebtoken';
 
 
 
